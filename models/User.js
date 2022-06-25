@@ -28,4 +28,8 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+UserSchema.statics.findByEmail = function (email) {
+  return this.findOne({ email });
+};
+
 module.exports = mongoose.model("User", UserSchema);
