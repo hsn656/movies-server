@@ -22,10 +22,10 @@ router.post("/register", async (req, res, next) => {
       password: hashedPassword,
     });
 
-    const user = await newUser.save();
-    const token = await generateToken(newUser);
+    await newUser.save();
+    const accessToken = await generateToken(newUser);
 
-    res.send({ user, token });
+    res.send({ accessToken });
   } catch (error) {
     next(error);
   }
@@ -33,7 +33,15 @@ router.post("/register", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
   try {
-    const user = await User.findByEmail(req.body.email);
+    const user = await User.findOne(
+      { email: req.body.email },
+      {
+        password: 1,
+        isAdmin: 1,
+        email: 1,
+        _id: 1,
+      }
+    );
     if (!user) {
       throw ApiError.badRequest("email or password is incorrect");
     }
@@ -44,11 +52,12 @@ router.post("/login", async (req, res, next) => {
       throw ApiError.badRequest("email or password is incorrect");
     }
 
-    const token = await generateToken(user);
+    const accessToken = await generateToken(user);
 
-    res.send({ user, token });
+    res.send({ accessToken });
   } catch (error) {
-    next(error);
+    // next(error);
+    res.send(error.message);
   }
 });
 
