@@ -25,6 +25,19 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+// search for user
+router.post("/search", async (req, res, next) => {
+  try {
+    const userName = req.body.userName;
+    const users = await User.find({
+      userName: { $regex: ".*" + userName + ".*" },
+    }).limit(10);
+    res.send(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.patch(
   "/:id",
   verifyToken,
