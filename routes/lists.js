@@ -6,7 +6,7 @@ const verifyAdminOrOwner = require("../middlewares/verifyAdmin");
 const verifyAdmin = require("../middlewares/verifyAdmin");
 
 // get all
-router.get("/", async (req, res, next) => {
+router.get("/", verifyToken, async (req, res, next) => {
   try {
     const typeQuery = req.query.type;
     const genreQuery = req.query.genre;
@@ -33,7 +33,7 @@ router.get("/", async (req, res, next) => {
 });
 
 // get one
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", verifyToken, async (req, res, next) => {
   try {
     const list = await List.findById({ _id: req.params.id });
     if (!list) throw ApiError.notFound("no such list");
