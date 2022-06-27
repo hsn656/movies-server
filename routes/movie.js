@@ -4,6 +4,8 @@ const ApiError = require("../error/api-error");
 const verifyToken = require("../middlewares/verifyToken");
 const verifyAdminOrOwner = require("../middlewares/verifyAdmin");
 const verifyAdmin = require("../middlewares/verifyAdmin");
+const mongoose = require("mongoose");
+const User = require("../models/User");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -19,6 +21,56 @@ router.get("/:id", async (req, res, next) => {
     const movie = await Movie.findById({ _id: req.params.id });
     if (!movie) throw ApiError.notFound("no such movie");
 
+    res.send(movie);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// user likes movie
+// push movie in user.likes and push user in movie.likes
+router.post("/:id/like", verifyToken, async (req, res, next) => {
+  try {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const movie = await Movie.findById({ _id: req.params.id });
+    if (!movie) throw ApiError.notFound("no such movie");
+    if (movie.likes.includes(req.user.id))
+      throw ApiError.conflict("movie already liked");
+    movie.likes.push(req.user.id);
+    await movie.save({ session });
+    const user = await User.findById({ _id: req.user.id });
+    if (user.likes.includes(movie._id))
+      throw ApiError.conflict("user already liked");
+    user.likes.push(movie._id);
+    await user.save({ session });
+    await session.commitTransaction();
+    session.endSession();
+    res.send(movie);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// user unlike movie
+// remove movie from user.likes and remove user from movie.likes
+router.delete("/:id/like", verifyToken, async (req, res, next) => {
+  try {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const movie = await Movie.findById({ _id: req.params.id });
+    if (!movie) throw ApiError.notFound("no such movie");
+    if (!movie.likes.includes(req.user.id))
+      throw ApiError.conflict("movie not liked");
+    movie.likes.pull(req.user.id);
+    await movie.save({ session });
+    const user = await User.findById({ _id: req.user.id });
+    if (!user.likes.includes(movie._id))
+      throw ApiError.conflict("user not liked");
+    user.likes.pull(movie._id);
+    await user.save({ session });
+    await session.commitTransaction();
+    session.endSession();
     res.send(movie);
   } catch (error) {
     next(error);

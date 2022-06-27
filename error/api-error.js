@@ -23,6 +23,10 @@ class ApiError {
   static forbidden(msg) {
     return new ApiError(403, msg);
   }
+
+  static conflict(msg) {
+    return new ApiError(409, msg);
+  }
 }
 
 module.exports = ApiError;
