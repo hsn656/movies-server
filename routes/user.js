@@ -5,7 +5,8 @@ const verifyToken = require("../middlewares/verifyToken");
 const { hashPassword } = require("../lib/userSecurity");
 const verifyAdminOrOwner = require("../middlewares/verifyAdminOrOwner");
 
-router.get("/", async (req, res, next) => {
+// get all users
+router.get("/", verifyToken, async (req, res, next) => {
   try {
     const users = await User.find();
     res.send(users);
@@ -14,6 +15,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// get last 5 users registered
 router.get("/latest", verifyToken, async (req, res) => {
   const query = req.query.new;
   if (req.user.isAdmin) {
@@ -30,7 +32,8 @@ router.get("/latest", verifyToken, async (req, res) => {
   }
 });
 
-router.get("/stats", async (req, res) => {
+// get number of users registered last year
+router.get("/stats", verifyToken, async (req, res) => {
   const today = new Date();
   const latYear = today.setFullYear(today.setFullYear() - 1);
 
@@ -54,7 +57,8 @@ router.get("/stats", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res, next) => {
+// get user by id
+router.get("/:id", verifyToken, async (req, res, next) => {
   try {
     const user = await User.findOne({ _id: req.params.id });
 
@@ -66,7 +70,7 @@ router.get("/:id", async (req, res, next) => {
 });
 
 // search for user
-router.post("/search", async (req, res, next) => {
+router.post("/search", verifyToken, async (req, res, next) => {
   try {
     const userName = req.body.userName;
     const users = await User.find({
@@ -78,6 +82,7 @@ router.post("/search", async (req, res, next) => {
   }
 });
 
+// edit user
 router.patch(
   "/:id",
   verifyToken,
@@ -99,6 +104,7 @@ router.patch(
   }
 );
 
+// delete user
 router.delete(
   "/:id",
   verifyToken,
@@ -112,5 +118,69 @@ router.delete(
     }
   }
 );
+
+//get friends
+router.get("/friends/:userId", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    const friends = await Promise.all(
+      user.followings.map((friendId) => {
+        return User.findById(friendId);
+      })
+    );
+    let friendList = [];
+    friends.map((friend) => {
+      const { _id, username, profilePicture } = friend;
+      friendList.push({ _id, username, profilePicture });
+    });
+    res.status(200).json(friendList);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+//follow a user
+router.put("/:id/follow", verifyToken, async (req, res) => {
+  req.body.userId = req.user.id;
+  if (req.body.userId !== req.params.id) {
+    try {
+      const user = await User.findById(req.params.id);
+      const currentUser = await User.findById(req.body.userId);
+      if (!user.followers.includes(req.body.userId)) {
+        await user.updateOne({ $push: { followers: req.body.userId } });
+        await currentUser.updateOne({ $push: { followings: req.params.id } });
+        res.status(200).json("user has been followed");
+      } else {
+        res.status(403).json("you already follow this user");
+      }
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res.status(403).json("you cant follow yourself");
+  }
+});
+
+//unfollow a user
+router.put("/:id/unfollow", verifyToken, async (req, res) => {
+  req.body.userId = req.user.id;
+  if (req.body.userId !== req.params.id) {
+    try {
+      const user = await User.findById(req.params.id);
+      const currentUser = await User.findById(req.body.userId);
+      if (user.followers.includes(req.body.userId)) {
+        await user.updateOne({ $pull: { followers: req.body.userId } });
+        await currentUser.updateOne({ $pull: { followings: req.params.id } });
+        res.status(200).json("user has been unfollowed");
+      } else {
+        res.status(403).json("you dont follow this user");
+      }
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res.status(403).json("you cant unfollow yourself");
+  }
+});
 
 module.exports = router;
