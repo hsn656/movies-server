@@ -53,8 +53,9 @@ router.post("/login", async (req, res, next) => {
     }
 
     const accessToken = await generateToken(user);
+    const { password, ...userInfo } = user._doc;
 
-    res.send({ accessToken });
+    res.send({ ...userInfo, accessToken });
   } catch (error) {
     // next(error);
     res.send(error.message);
