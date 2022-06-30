@@ -7,7 +7,7 @@ const verifyAdmin = require("../middlewares/verifyAdmin");
 const mongoose = require("mongoose");
 const User = require("../models/User");
 
-router.get("/", async (req, res, next) => {
+router.get("/", verifyToken, async (req, res, next) => {
   try {
     const movies = await Movie.find();
     res.send(movies);
@@ -16,7 +16,28 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res, next) => {
+router.get("/random", verifyToken, async (req, res) => {
+  const type = req.query.type;
+  let movie;
+  try {
+    if (type === "series") {
+      movie = await Movie.aggregate([
+        { $match: { isSeries: true } },
+        { $sample: { size: 1 } },
+      ]);
+    } else {
+      movie = await Movie.aggregate([
+        { $match: { isSeries: false } },
+        { $sample: { size: 1 } },
+      ]);
+    }
+    res.status(200).json(movie);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+router.get("/:id", verifyToken, async (req, res, next) => {
   try {
     const movie = await Movie.findById({ _id: req.params.id });
     if (!movie) throw ApiError.notFound("no such movie");
