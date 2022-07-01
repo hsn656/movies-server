@@ -43,6 +43,10 @@ const UserSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    subsribedTill: {
+      type: Date,
+      required: true,
+    },
   },
   { timestamps: true }
 );
