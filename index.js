@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-
+const multer = require("multer");
 const router = require("./routes");
 const apiErrorHandler = require("./error/api-error-handler");
 
@@ -11,6 +11,22 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, req.body.name);
+  },
+});
+const upload = multer({ storage: storage });
+app.post("/api/upload", upload.single("file"), (req, res) => {
+  try {
+    return res.status(200).json("File uploded successfully");
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 app.use("/", router);
 app.use(apiErrorHandler);
