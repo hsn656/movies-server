@@ -30,7 +30,7 @@ router.get("/latest", verifyToken, async (req, res) => {
   }
 });
 
-router.get("/stats", async (req, res) => {
+router.get("/stats", verifyToken, async (req, res) => {
   const today = new Date();
   const latYear = today.setFullYear(today.setFullYear() - 1);
 
