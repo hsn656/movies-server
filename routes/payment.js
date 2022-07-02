@@ -5,7 +5,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const Order = require("../models/Order");
 const mongoose = require("mongoose");
 
-router.post("/payment", verifyToken, async (req, res, next) => {
+router.post("/", verifyToken, async (req, res, next) => {
   try {
     const { amount, source } = req.body;
     const charge = await stripe.charges.create({
@@ -26,7 +26,7 @@ router.post("/payment", verifyToken, async (req, res, next) => {
     await User.findByIdAndUpdate(
       req.user._id,
       {
-        subsribedTill: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        subscribedTill: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
       { session }
     );
@@ -39,3 +39,5 @@ router.post("/payment", verifyToken, async (req, res, next) => {
     next(error);
   }
 });
+
+module.exports = router;

@@ -20,7 +20,7 @@ router.post("/register", async (req, res, next) => {
       userName: req.body.userName,
       email: req.body.email,
       password: hashedPassword,
-      subsribedTill: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      subscribedTill: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
     await newUser.save();
@@ -41,6 +41,7 @@ router.post("/login", async (req, res, next) => {
         isAdmin: 1,
         email: 1,
         _id: 1,
+        subscribedTill: 1,
         subsribedTill: 1,
         followings: 1,
       }

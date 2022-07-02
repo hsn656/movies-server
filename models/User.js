@@ -47,7 +47,7 @@ const UserSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    subsribedTill: {
+    subscribedTill: {
       type: Date,
       required: true,
     },

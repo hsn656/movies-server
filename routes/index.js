@@ -5,6 +5,7 @@ const movieRouter = require("./movie");
 const listRouter = require("./lists");
 const postRouter = require("./posts");
 const conversationRouter = require("./conversations");
+const paymentRouter = require("./payment");
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/movies", movieRouter);
 router.use("/lists", listRouter);
 router.use("/posts", postRouter);
 router.use("/conversations", conversationRouter);
+router.use("/payment", paymentRouter);
 
 module.exports = router;
