@@ -57,15 +57,31 @@ router.get("/stats", verifyToken, async (req, res) => {
   }
 });
 
-// get user by id
-router.get("/:id", verifyToken, async (req, res, next) => {
-  try {
-    const user = await User.findOne({ _id: req.params.id });
+// // get user by id
+// router.get("/:id", verifyToken, async (req, res, next) => {
+//   try {
+//     const user = await User.findOne({ _id: req.params.id });
 
-    if (!user) throw ApiError.notFound("no such user");
-    res.send(user);
-  } catch (error) {
-    next(error);
+//     if (!user) throw ApiError.notFound("no such user");
+//     res.send(user);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+//new
+//get a user
+router.get("/", async (req, res) => {
+  const userId = req.query.userId;
+  const userName = req.query.userName;
+  try {
+    const user = userId
+      ? await User.findById(userId)
+      : await User.findOne({ userName: userName });
+    const { password, updatedAt, ...other } = user._doc;
+    res.status(200).json(other);
+  } catch (err) {
+    res.status(500).json(err);
   }
 });
 

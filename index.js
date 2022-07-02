@@ -6,6 +6,9 @@ const multer = require("multer");
 const router = require("./routes");
 const apiErrorHandler = require("./error/api-error-handler");
 
+//new
+const path = require("path");
+
 dotenv.config();
 const app = express();
 
@@ -41,3 +44,7 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
+
+//new
+
+app.use("/images", express.static(path.join(__dirname, "public/images")));
