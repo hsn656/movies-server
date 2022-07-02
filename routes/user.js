@@ -6,12 +6,26 @@ const { hashPassword } = require("../lib/userSecurity");
 const verifyAdminOrOwner = require("../middlewares/verifyAdminOrOwner");
 
 // get all users
-router.get("/", verifyToken, async (req, res, next) => {
-  try {
-    const users = await User.find();
-    res.send(users);
-  } catch (error) {
-    next(error);
+router.get("/", async (req, res, next) => {
+  if (req.query.userId || req.query.userName) {
+    const userId = req.query.userId;
+    const userName = req.query.userName;
+    try {
+      const user = userId
+        ? await User.findById(userId)
+        : await User.findOne({ userName: userName });
+      const { password, updatedAt, ...other } = user._doc;
+      res.status(200).json(other);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    try {
+      const users = await User.find();
+      res.send(users);
+    } catch (error) {
+      next(error);
+    }
   }
 });
 
@@ -68,22 +82,6 @@ router.get("/stats", verifyToken, async (req, res) => {
 //     next(error);
 //   }
 // });
-
-//new
-//get a user
-router.get("/", async (req, res) => {
-  const userId = req.query.userId;
-  const userName = req.query.userName;
-  try {
-    const user = userId
-      ? await User.findById(userId)
-      : await User.findOne({ userName: userName });
-    const { password, updatedAt, ...other } = user._doc;
-    res.status(200).json(other);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
 
 // search for user
 router.post("/search", verifyToken, async (req, res, next) => {
