@@ -41,6 +41,7 @@ router.post("/login", async (req, res, next) => {
         isAdmin: 1,
         email: 1,
         _id: 1,
+        subsribedTill: 1,
       }
     );
     if (!user) {
