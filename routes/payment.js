@@ -8,6 +8,15 @@ const mongoose = require("mongoose");
 router.post("/", verifyToken, async (req, res, next) => {
   try {
     const { amount, source } = req.body;
+
+    // await stripe.paymentIntents.create({
+    //   amount,
+    //   currency: "USD",
+    //   description: "Your Company Description",
+    //   payment_method: source,
+    //   confirm: true,
+    // });
+
     const charge = await stripe.charges.create({
       amount,
       currency: "usd",
@@ -16,27 +25,25 @@ router.post("/", verifyToken, async (req, res, next) => {
 
     const session = await mongoose.startSession();
     session.startTransaction();
-    await Order.create(
-      {
-        user: req.user._id,
-        price: amount,
-      },
-      { session }
+    const order = new Order({
+      user: req.user.id,
+      price: amount,
+    });
+    await order.save({ session });
+
+    const user = await User.findById(req.user.id);
+
+    user.subscribedTill = new Date(
+      new Date().getTime() + 30 * 24 * 60 * 60 * 1000
     );
-    await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        subscribedTill: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      },
-      { session }
-    );
+    await user.save({ session });
 
     await session.commitTransaction();
     session.endSession();
 
     res.status(200).json({ isSuccess: true });
   } catch (error) {
-    next(error);
+    res.send(error);
   }
 });
 
