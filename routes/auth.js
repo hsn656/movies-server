@@ -61,8 +61,7 @@ router.post("/login", async (req, res, next) => {
 
     res.send({ ...userInfo, accessToken });
   } catch (error) {
-    // next(error);
-    res.send(error.message);
+    next(error);
   }
 });
 
