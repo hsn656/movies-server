@@ -65,4 +65,18 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
+//check if email exists
+router.post("/check-email", async (req, res, next) => {
+  try {
+    const user = await User.findByEmail(req.body.email);
+    if (user) {
+      res.send({ exists: true });
+    } else {
+      res.send({ exists: false });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
