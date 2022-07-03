@@ -7,9 +7,9 @@ const verifyAdminOrOwner = require("../middlewares/verifyAdminOrOwner");
 
 // get all users
 router.get("/", async (req, res, next) => {
-  if (req.query.userId || req.query.userName) {
+  if (req.query.userId || req.query.username) {
     const userId = req.query.userId;
-    const userName = req.query.userName;
+    const userName = req.query.username;
     try {
       const user = userId
         ? await User.findById(userId)
@@ -144,8 +144,8 @@ router.get("/friends/:userId", verifyToken, async (req, res) => {
     );
     let friendList = [];
     friends.map((friend) => {
-      const { _id, username, profilePicture } = friend;
-      friendList.push({ _id, username, profilePicture });
+      const { _id, userName, profilePicture } = friend;
+      friendList.push({ _id, userName, profilePicture });
     });
     res.status(200).json(friendList);
   } catch (err) {
