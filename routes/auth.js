@@ -44,6 +44,7 @@ router.post("/login", async (req, res, next) => {
         subscribedTill: 1,
         subsribedTill: 1,
         followings: 1,
+        userName: 1,
       }
     );
     if (!user) {

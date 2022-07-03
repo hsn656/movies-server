@@ -7,7 +7,6 @@ const verifyAdmin = require("../middlewares/verifyAdmin");
 const mongoose = require("mongoose");
 
 //create a post
-
 router.post("/", verifyToken, async (req, res, next) => {
   try {
     req.body.userId = req.user.id;
@@ -18,8 +17,8 @@ router.post("/", verifyToken, async (req, res, next) => {
     next(err);
   }
 });
-//update a post
 
+//update a post
 router.put("/:id", verifyToken, async (req, res, next) => {
   try {
     req.body.userId = req.user.id;
@@ -34,8 +33,8 @@ router.put("/:id", verifyToken, async (req, res, next) => {
     next(err);
   }
 });
-//delete a post
 
+//delete a post
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     req.body.userId = req.user.id;
@@ -50,8 +49,8 @@ router.delete("/:id", verifyToken, async (req, res) => {
     res.status(500).json(err);
   }
 });
-//like / dislike a post
 
+//like / dislike a post
 router.put("/:id/like", verifyToken, async (req, res) => {
   try {
     req.body.userId = req.user.id;
@@ -97,7 +96,6 @@ router.get("/timeline/:userId", verifyToken, async (req, res) => {
 
 //get user's posts
 router.get("/profile/:userName", verifyToken, async (req, res) => {
-  console.log("profile");
   try {
     const user = await User.findOne({ userName: req.params.userName });
     const posts = await Post.find({ userId: user._id });
