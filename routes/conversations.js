@@ -8,7 +8,6 @@ router.post("/", async (req, res) => {
       $all: [req.body.senderId, req.body.receiverId],
     },
   });
-  console.log(conversations);
   if (conversations.length > 0) return res.json(conversations[0]);
 
   const newConversation = new Conversation({

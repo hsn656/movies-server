@@ -83,12 +83,31 @@ router.get("/timeline/:userId", verifyToken, async (req, res) => {
     // req.body.userId = req.user.id;
     const currentUser = await User.findById(req.params.userId);
     const userPosts = await Post.find({ userId: currentUser._id });
-    const friendPosts = await Promise.all(
-      currentUser.followings.map((friendId) => {
-        return Post.find({ userId: friendId });
-      })
-    );
-    res.json(userPosts.concat(...friendPosts));
+    let followingPosts = [];
+    let otherPosts = [];
+    if (currentUser.followings.length > 0) {
+      //get following posts
+      followingPosts = await Post.find({
+        userId: { $in: currentUser.followings },
+      });
+      // otherPosts = await Promise.all(
+      //   currentUser.followings.map((friendId) => {
+      //     return Post.find({ userId: friendId });
+      //   })
+      // );
+    } else {
+      otherPosts = await Post.find({ userId: { $ne: currentUser._id } }).limit(
+        5
+      );
+    }
+
+    if (followingPosts.length < 5) {
+      otherPosts = await Post.find({
+        userId: { $nin: [currentUser._id, ...currentUser.followings] },
+      }).limit(5 - followingPosts.length);
+    }
+
+    res.json(userPosts.concat(...followingPosts).concat(...otherPosts));
   } catch (err) {
     res.status(500).json(err);
   }
