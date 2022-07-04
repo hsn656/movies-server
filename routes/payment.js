@@ -47,4 +47,18 @@ router.post("/", verifyToken, async (req, res, next) => {
   }
 });
 
-module.exports = router;
+//is user subscribed
+router.get("/isSubscribed", verifyToken, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (user.subscribedTill > new Date()) {
+      res.status(200).json({ isSubscribed: true });
+    } else {
+      res.status(200).json({ isSubscribed: false });
+    }
+  } catch (error) {
+    res.send(error);
+  }
+});
+
+router.module.exports = router;
