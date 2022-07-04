@@ -61,4 +61,4 @@ router.get("/isSubscribed", verifyToken, async (req, res, next) => {
   }
 });
 
-router.module.exports = router;
+module.exports = router;
