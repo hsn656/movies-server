@@ -3,6 +3,14 @@ const Conversation = require("../models/Conversation");
 
 //new conv
 router.post("/", async (req, res) => {
+  const conversations = await Conversation.find({
+    members: {
+      $all: [req.body.senderId, req.body.receiverId],
+    },
+  });
+  console.log(conversations);
+  if (conversations.length > 0) return res.json(conversations[0]);
+
   const newConversation = new Conversation({
     members: [req.body.senderId, req.body.receiverId],
   });
