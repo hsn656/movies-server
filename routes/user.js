@@ -97,26 +97,19 @@ router.post("/search", verifyToken, async (req, res, next) => {
 });
 
 // edit user
-router.patch(
-  "/:id",
-  verifyToken,
-  verifyAdminOrOwner,
-  async (req, res, next) => {
-    try {
-      if (req.body.password)
-        req.body.password = await hashPassword(req.body.password);
+router.patch("/:id", verifyToken, async (req, res, next) => {
+  try {
+    if (req.body.password)
+      req.body.password = await hashPassword(req.body.password);
 
-      const updatedUser = await User.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
-      res.send(updatedUser);
-    } catch (error) {
-      next(error);
-    }
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.send(updatedUser);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // delete user
 router.delete(
