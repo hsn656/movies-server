@@ -101,7 +101,7 @@ router.get("/timeline/:userId", verifyToken, async (req, res) => {
       );
     }
 
-    if (followingPosts.length < 5) {
+    if (followingPosts.length + userPosts.length < 5) {
       otherPosts = await Post.find({
         userId: { $nin: [currentUser._id, ...currentUser.followings] },
       }).limit(5 - followingPosts.length);
