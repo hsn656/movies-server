@@ -4,6 +4,7 @@ const ApiError = require("../error/api-error");
 const verifyToken = require("../middlewares/verifyToken");
 const { hashPassword } = require("../lib/userSecurity");
 const verifyAdminOrOwner = require("../middlewares/verifyAdminOrOwner");
+const fs = require("fs");
 
 // get all users
 router.get("/", async (req, res, next) => {
@@ -101,6 +102,18 @@ router.patch("/:id", verifyToken, async (req, res, next) => {
   try {
     if (req.body.password)
       req.body.password = await hashPassword(req.body.password);
+
+    if (req.body.profilePicture) {
+      fs.unlink(`./public/images/${req.body.oldProfilePicture}`, (err) => {
+        if (err) console.log(err);
+      });
+    }
+
+    if (req.body.coverPicture) {
+      fs.unlink(`./public/images/${req.body.oldCoverPicture}`, (err) => {
+        if (err) console.log(err);
+      });
+    }
 
     const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,

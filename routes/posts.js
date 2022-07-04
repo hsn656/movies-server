@@ -5,6 +5,7 @@ const verifyToken = require("../middlewares/verifyToken");
 const verifyAdminOrOwner = require("../middlewares/verifyAdmin");
 const verifyAdmin = require("../middlewares/verifyAdmin");
 const mongoose = require("mongoose");
+const fs = require("fs");
 
 //create a post
 router.post("/", verifyToken, async (req, res, next) => {
@@ -40,6 +41,9 @@ router.delete("/:id", verifyToken, async (req, res) => {
     req.body.userId = req.user.id;
     const post = await Post.findById(req.params.id);
     if (post.userId === req.body.userId) {
+      await fs.unlink(`./public/images/${post.img}`, (err) => {
+        if (err) console.log(err);
+      });
       await post.deleteOne();
       res.status(200).json("the post has been deleted");
     } else {
