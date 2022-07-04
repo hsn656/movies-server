@@ -48,6 +48,7 @@ router.post("/login", async (req, res, next) => {
         subscribedTill: 1,
         likes: 1,
         profilePicture: 1,
+        coverPicture: 1,
       }
     );
     if (!user) {
