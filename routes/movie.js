@@ -16,6 +16,18 @@ router.get("/", verifyToken, async (req, res, next) => {
   }
 });
 
+//search movies by title
+router.post("/search", verifyToken, async (req, res, next) => {
+  try {
+    const movies = await Movie.find({
+      title: { $regex: req.body.search, $options: "i" },
+    });
+    res.send(movies);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/random", verifyToken, async (req, res) => {
   const type = req.query.type;
   let movie;
